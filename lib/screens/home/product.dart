@@ -18,7 +18,7 @@ class Product {
 List<Product> products = [
   Product(
       id: 1,
-      title: "Office Code",
+      title: "Harry Poster",
       price: 234,
       size: 12,
       description: dummyText,
@@ -26,7 +26,7 @@ List<Product> products = [
       color: Color(0xFF3D82AE)),
   Product(
       id: 2,
-      title: "Belt Bag",
+      title: "Hat giong tam hon",
       price: 234,
       size: 8,
       description: dummyText,
@@ -34,7 +34,7 @@ List<Product> products = [
       color: Color(0xFFD3A984)),
   Product(
       id: 3,
-      title: "Hang Top",
+      title: "Doraemon",
       price: 234,
       size: 10,
       description: dummyText,
@@ -42,7 +42,7 @@ List<Product> products = [
       color: Color(0xFF989493)),
   Product(
       id: 4,
-      title: "Old Fashion",
+      title: "Pikachu",
       price: 234,
       size: 11,
       description: dummyText,
@@ -50,7 +50,7 @@ List<Product> products = [
       color: Color(0xFFE6B398)),
   Product(
       id: 5,
-      title: "Office Code",
+      title: "Morning",
       price: 234,
       size: 12,
       description: dummyText,
@@ -58,7 +58,7 @@ List<Product> products = [
       color: Color(0xFFFB7883)),
   Product(
     id: 6,
-    title: "Office Code",
+    title: "Smart think",
     price: 234,
     size: 12,
     description: dummyText,
