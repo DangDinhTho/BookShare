@@ -68,4 +68,4 @@ List<Product> products = [
 ];
 
 String dummyText =
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since. When an unknown printer took a galley.";
+    "The blurb (blurb- that's one of those grating, nails-on-a-chalkboard words, like percolate and swig, yuck) for this book says the story centers around a secret, underground experimenting facility that is connected to a teenager having strange visions so I kinda went into this book expecting it to be similar to the show Stranger Things.";

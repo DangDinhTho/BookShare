@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
           selectedItemColor: Constrain().selectedColor,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.library_books),
+              icon: Icon(Icons.store),
               title: Text("Market")
             ),
             BottomNavigationBarItem(
