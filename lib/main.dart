@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_books/screens/home/home.dart';
+import 'package:share_books/screens/login_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
 
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Home(),
+      home: LoginScreen(),
     );
   }
 }
