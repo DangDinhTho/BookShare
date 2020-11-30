@@ -3,7 +3,8 @@ import 'package:share_books/screens/home/product.dart';
 
 class Detail extends StatelessWidget {
   final Product product;
-  const Detail({Key key, @required this.product}) : super(key: key);
+  final canChat;
+  const Detail({Key key, @required this.product, this.canChat = true}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
