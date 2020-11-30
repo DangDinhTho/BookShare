@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:share_books/constrain.dart';
+import 'package:share_books/screens/home/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_books/screens/sign_up_screen.dart';
 import 'package:share_books/services/authservice.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,11 +14,21 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _username = new TextEditingController();
   TextEditingController _password = new TextEditingController();
   String username, password, token;
+
+  login(token) async{
+    print(token);
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setString('token', token);
+    sharedPreferences.setString('username', username);
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => Home()), (Route<dynamic> route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Login"),
+        centerTitle: true,
       ),
       body: Center(
 
@@ -103,10 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     AuthService().login(username, password).then((val){
                       if(val.data['success']){
                         var token = val.data['token'];
-                        print(token);
-                        AuthService().getinfor(token).then((val){
-                           print(val.data['msg']);
-                        });
+                        login(token);
                       }
                       else{
                         print('no');
@@ -126,18 +135,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: FlatButton(
                   child: Text("SIGNUP"),
                   onPressed: (){
-                    username = _username.value.text;
-                    password = _password.value.text;
-                    print(username + '-' + password);
-                    AuthService().login('tho', '12345').then((val){
-                      if(val.data['success']){
-                        var token = val.data['token'];
-                        print(token);
-                        AuthService().getinfor(token).then((val){
-                          print(val.data['msg']);
-                        });
-                      }
-                    });
+                    Navigator.push(context, new MaterialPageRoute(
+                        builder: (BuildContext context) => SignUpScreen()
+                    ));
                   },
                 ),
               ),

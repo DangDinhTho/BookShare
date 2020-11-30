@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
 class Product {
-  final String image, title, description;
+  final String image, title, description, author, publisher, category, owner, price2;
   final int price, size, id;
   final Color color;
-  Product({
+  const Product({
     this.id,
     this.image,
     this.title,
     this.price,
     this.description,
-    this.size,
+    this.author,
+    this.publisher,
+    this.category,
+    this.owner, this.size, this.price2,
     this.color,
+
   });
 }
 

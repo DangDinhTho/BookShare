@@ -1,16 +1,45 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_books/model/user.dart';
+import 'package:share_books/screens/login_screen.dart';
 import 'package:share_books/widgets/avatar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileScreen extends StatelessWidget {
+
+class ProfileScreen extends StatefulWidget {
+  final User user;
+  const ProfileScreen({Key key, @required this.user}):super(key:key);
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState(user: user);
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  User user;
+  _ProfileScreenState({Key key, this.user}):super();
+
+  logout() async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setString('token', null);
+    sharedPreferences.clear();
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginScreen()), (Route<dynamic> route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dang Dinh Tho"),
+        title: Text(user.name),
         actions: [
           IconButton(
             icon: Icon(Icons.forum),
+          ),
+
+          FlatButton(
+            child: Text("Logout"),
+            onPressed: (){
+                logout();
+            },
           )
         ],
       ),
@@ -38,7 +67,7 @@ class ProfileScreen extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.phone_iphone, color: Colors.redAccent,size: 35,),
             title: Text("Phone", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),),
-            subtitle: Text("0338572822"),
+            subtitle: Text(user.phoneNumber),
             trailing: IconButton(
               icon: Icon(Icons.edit),
               onPressed: (){
@@ -52,7 +81,7 @@ class ProfileScreen extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.home, color: Colors.green,size: 35,),
             title: Text("Address", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),),
-            subtitle: Text("31 Phung Khoang"),
+            subtitle: Text(user.address),
             trailing: IconButton(
               icon: Icon(Icons.edit),
               onPressed: (){
