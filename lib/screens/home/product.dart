@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Product {
-  final String image, title, description, author, publisher, category, owner, price2;
+  final String imagePath, image, imageName, title, description, author, publisher, category, owner, price2;
   final int price, size, id;
   final Color color;
   const Product({
     this.id,
     this.image,
+    this.imagePath,
+    this.imageName,
     this.title,
     this.price,
     this.description,

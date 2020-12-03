@@ -54,15 +54,24 @@ class AuthService{
     String token = sharedPreferences.getString('token');
     print(token);
     dio.options.headers['Authorization'] = 'Bearer $token';
+
+    var formData =  FormData.fromMap({
+      'title': product.title,
+      'subtitle': product.description,
+      'price': product.price2,
+      'author': product.author,
+      'publisher': product.publisher,
+      'category': product.category,
+      "file": await MultipartFile.fromFile(product.imagePath ,filename: product.imageName),
+      // "files": [
+      //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
+      //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
+      // ]
+    });
+
     try{
-      return await dio.post('http://10.0.2.2:3000/newProduct', data: {
-        'title': product.title,
-        'subtitle': product.description,
-        'price': product.price2,
-        'author': product.author,
-        'publisher': product.publisher,
-        'category': product.category,
-      }, options: Options(contentType: Headers.formUrlEncodedContentType));
+      return await dio.post('http://10.0.2.2:3000/newProduct', data: formData,
+          options: Options(contentType: Headers.formUrlEncodedContentType));
     }
     on DioError catch(err){
       //Fluttertoast.showToast(msg: err.response.data['msg']);

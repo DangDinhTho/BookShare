@@ -316,7 +316,9 @@ class _PostProductState extends State<PostProduct> {
                   price2: price.value.text,
                   author: author.value.text,
                 category: category.value.text,
-                publisher: publisher.value.text
+                publisher: publisher.value.text,
+                  imagePath: fileImage.path,
+                imageName: fileImage.path.split('/').last
               );
 
               AuthService().uploadBook(book).then((val){
