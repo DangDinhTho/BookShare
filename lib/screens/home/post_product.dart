@@ -13,6 +13,7 @@ class PostProduct extends StatefulWidget {
 
 class _PostProductState extends State<PostProduct> {
   PickedFile fileImage;
+  String dropdownValue = 'One';
 
   TextEditingController title = new TextEditingController();
   TextEditingController description = new TextEditingController();
@@ -88,7 +89,7 @@ class _PostProductState extends State<PostProduct> {
     if (fileImage == null) {
       return Text('');
     } else
-      return Image.asset(
+      return new Image.asset(
         fileImage.path,
         width: 200,
         height: 200,
@@ -300,7 +301,31 @@ class _PostProductState extends State<PostProduct> {
                 ),
               ),
             ],
-          )
+          ),
+
+                DropdownButton<String>(
+    value: dropdownValue,
+    icon: Icon(Icons.arrow_downward),
+    iconSize: 24,
+    elevation: 16,
+    style: TextStyle(color: Colors.deepPurple),
+    underline: Container(
+    height: 2,
+    color: Colors.deepPurpleAccent,
+    ),
+    onChanged: (String newValue) {
+    setState(() {
+    dropdownValue = newValue;
+    });
+    },
+    items: <String>['One', 'Two', 'Free', 'Four']
+        .map<DropdownMenuItem<String>>((String value) {
+    return DropdownMenuItem<String>(
+    value: value,
+    child: Text(value),
+    );
+    }).toList(),
+    )
         ],
       ),
 
@@ -317,8 +342,10 @@ class _PostProductState extends State<PostProduct> {
                   author: author.value.text,
                 category: category.value.text,
                 publisher: publisher.value.text,
+                //imageName: fileImage.path.split('/').last,
                   imagePath: fileImage.path,
-                imageName: fileImage.path.split('/').last
+                  //imageName: fileImage.path.split('/').last
+                //imageName: 'Test'
               );
 
               AuthService().uploadBook(book).then((val){

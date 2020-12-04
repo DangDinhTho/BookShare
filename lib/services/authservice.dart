@@ -62,7 +62,7 @@ class AuthService{
       'author': product.author,
       'publisher': product.publisher,
       'category': product.category,
-      "file": await MultipartFile.fromFile(product.imagePath ,filename: product.imageName),
+      'image': await MultipartFile.fromFile(product.imagePath ,filename: product.imageName),
       // "files": [
       //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
       //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
@@ -70,8 +70,19 @@ class AuthService{
     });
 
     try{
-      return await dio.post('http://10.0.2.2:3000/newProduct', data: formData,
+      return await dio.post('http://10.0.2.2:3000/product/newBook', data: formData,
           options: Options(contentType: Headers.formUrlEncodedContentType));
+    }
+    on DioError catch(err){
+      //Fluttertoast.showToast(msg: err.response.data['msg']);
+      print('non object');
+      return err.response;
+    }
+  }
+
+  getAllBooks() async{
+    try{
+      return await dio.get('http://10.0.2.2:3000/product/getAllBooks');
     }
     on DioError catch(err){
       //Fluttertoast.showToast(msg: err.response.data['msg']);

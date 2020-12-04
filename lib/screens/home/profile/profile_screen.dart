@@ -105,6 +105,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
 
           Divider(thickness: 1,),
+
+          ListTile(
+            leading: Icon(Icons.library_books, color: Colors.cyan,size: 35,),
+            title: Text("Review Posts", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),),
+            subtitle: Text("1 posts"),
+            trailing: IconButton(
+              icon: Icon(Icons.arrow_forward_ios),
+              onPressed: (){
+                print("Edit");
+              },
+            ),
+          ),
+
+          Divider(thickness: 1,),
         ],
       )
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_books/constrain.dart';
 import 'package:share_books/screens/home/post_product.dart';
 import 'package:share_books/screens/home/product.dart';
+import 'package:share_books/services/authservice.dart';
 
 import 'item_card.dart';
 
@@ -13,6 +14,10 @@ class MarketScreen extends StatefulWidget {
 class _MarketScreenState extends State<MarketScreen> {
   bool _folded = false;
   TextEditingController _editingController = new TextEditingController();
+
+  List<Product> books = AuthService().getAllBooks().then((val){
+    print(val);
+  });
 
   @override
   Widget build(BuildContext context) {
