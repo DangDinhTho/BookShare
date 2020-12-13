@@ -2,9 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_books/model/book.dart';
+import 'package:share_books/screens/home/detail.dart';
 import 'package:share_books/screens/home/product.dart';
 import 'package:share_books/services/authservice.dart';
+import 'package:share_books/services/cut_price.dart';
 
 class PostProduct extends StatefulWidget {
   @override
@@ -21,9 +26,10 @@ class _PostProductState extends State<PostProduct> {
   TextEditingController author = new TextEditingController();
   TextEditingController publisher = new TextEditingController();
   TextEditingController category = new TextEditingController();
+  TextEditingController year = new TextEditingController();
 
   openGallery(BuildContext context) async {
-    var image = await ImagePicker().getImage(source: ImageSource.gallery);
+    var image = await new ImagePicker().getImage(source: ImageSource.gallery);
     this.setState(() {
       fileImage = image;
     });
@@ -31,7 +37,7 @@ class _PostProductState extends State<PostProduct> {
   }
 
   openCamera(BuildContext context) async {
-    var image = await ImagePicker().getImage(source: ImageSource.camera);
+    var image = await new ImagePicker().getImage(source: ImageSource.camera);
     this.setState(() {
       fileImage = image;
     });
@@ -206,6 +212,10 @@ class _PostProductState extends State<PostProduct> {
               ),
               TextField(
                 controller: price,
+                inputFormatters: [
+                  WhitelistingTextInputFormatter.digitsOnly,
+                  CutPrice()
+                ],
                 decoration: InputDecoration(
                   //contentPadding: EdgeInsets.only(left: 10),
                   //icon: Icon(Icons.account_circle),
@@ -303,6 +313,33 @@ class _PostProductState extends State<PostProduct> {
             ],
           ),
 
+          SizedBox(
+            height: 15,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 5.0,
+              ),
+              TextField(
+                controller:  year,
+                decoration: InputDecoration(
+                  //contentPadding: EdgeInsets.only(left: 10),
+                  //icon: Icon(Icons.account_circle),
+                  //hintText: 'Title',
+                  labelText: 'Publishing year',
+                  labelStyle:
+                  TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  hintStyle: TextStyle(color: Colors.blue),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
                 DropdownButton<String>(
     value: dropdownValue,
     icon: Icon(Icons.arrow_downward),
@@ -335,22 +372,29 @@ class _PostProductState extends State<PostProduct> {
           child: Text('UPLOAD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
           onPressed: (){
             if(title.value.text != ''){
-              Product book = new Product(
+              Book book = new Book(
                   title: title.value.text,
-                  description: description.value.text,
-                  price2: price.value.text,
+                  subtitle: description.value.text,
+                  price: price.value.text.replaceAll(",", ""),
                   author: author.value.text,
                 category: category.value.text,
                 publisher: publisher.value.text,
-                //imageName: fileImage.path.split('/').last,
-                  imagePath: fileImage.path,
+                year: year.value.text,
+                imageNames: [fileImage.path.split('/').last],
+                imageURLs: [fileImage.path],
                   //imageName: fileImage.path.split('/').last
                 //imageName: 'Test'
               );
 
               AuthService().uploadBook(book).then((val){
-                if(val.data['success']){
+                if(val.data["success"]){
+                  //print(val.data["newBook"]);
                   Navigator.pop(context);
+                  Book newBook = Book.fromJson(val.data["newBook"]);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Detail(book: newBook, canChat: false,)),
+                  );
                 }
                 else{
                   print(val.data['msg']);

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Product {
-  final String imagePath, image, imageName, title, description, author, publisher, category, owner, price2;
-  final int price, size, id;
-  final Color color;
-  const Product({
+  final String imagePath, imageName, title, description, author, publisher, category, owner, price, id;
+  //final int price;
+  final Image image;
+  Product({
     this.id,
-    this.image,
     this.imagePath,
     this.imageName,
     this.title,
@@ -16,62 +15,49 @@ class Product {
     this.author,
     this.publisher,
     this.category,
-    this.owner, this.size, this.price2,
-    this.color,
+    this.owner,
+    this.image
 
   });
+
+  factory Product.fromJson(Map<String, dynamic> json){
+
+    return Product(
+      id: json['_id'] as String,
+      imagePath: json['image'] as String,
+      imageName: json['image'] as String,
+      title: json['title'] as String,
+      price: json['price'] as String,
+      description: json['subtitle'] as String,
+      author: json['author'] as String,
+      publisher: json['publisher'] as String,
+      category: json['category'] as String,
+      owner: json['owner'] as String
+    );
+
+  }
 }
+
+
 
 List<Product> products = [
   Product(
-      id: 1,
+      id: '1',
       title: "Harry Poster",
-      price: 234,
-      size: 12,
-      description: dummyText,
-      image: "assets/images/book_1.jpg",
-      color: Color(0xFF3D82AE)),
+      price: '234',
+      image: Image.asset('./assets/images/book_1.jpg'),
+      description: dummyText,),
   Product(
-      id: 2,
-      title: "Hat giong tam hon",
-      price: 234,
-      size: 8,
-      description: dummyText,
-      image: "assets/images/book_1.jpg",
-      color: Color(0xFFD3A984)),
+    id: '2',
+    title: "Harry Poster",
+    price: '234',
+    description: dummyText,),
   Product(
-      id: 3,
-      title: "Doraemon",
-      price: 234,
-      size: 10,
-      description: dummyText,
-      image: "assets/images/book_1.jpg",
-      color: Color(0xFF989493)),
-  Product(
-      id: 4,
-      title: "Pikachu",
-      price: 234,
-      size: 11,
-      description: dummyText,
-      image: "assets/images/book_1.jpg",
-      color: Color(0xFFE6B398)),
-  Product(
-      id: 5,
-      title: "Morning",
-      price: 234,
-      size: 12,
-      description: dummyText,
-      image: "assets/images/book_1.jpg",
-      color: Color(0xFFFB7883)),
-  Product(
-    id: 6,
-    title: "Smart think",
-    price: 234,
-    size: 12,
-    description: dummyText,
-    image: "assets/images/book_1.jpg",
-    color: Color(0xFFAEAEAE),
-  ),
+    id: '3',
+    title: "Harry Poster",
+    price: '234',
+    description: dummyText,),
+
 ];
 
 String dummyText =

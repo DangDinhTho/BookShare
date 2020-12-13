@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:share_books/model/book.dart';
 import 'package:share_books/screens/home/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class AuthService{
@@ -49,20 +50,21 @@ class AuthService{
     return await dio.get('http://10.0.2.2:3000/getinfor');
   }
 
-  uploadBook(product) async {
+  uploadBook(book) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String token = sharedPreferences.getString('token');
     print(token);
     dio.options.headers['Authorization'] = 'Bearer $token';
 
     var formData =  FormData.fromMap({
-      'title': product.title,
-      'subtitle': product.description,
-      'price': product.price2,
-      'author': product.author,
-      'publisher': product.publisher,
-      'category': product.category,
-      'image': await MultipartFile.fromFile(product.imagePath ,filename: product.imageName),
+      'title': book.title,
+      'subtitle': book.subtitle,
+      'price': book.price,
+      'author': book.author,
+      'publisher': book.publisher,
+      'year': book.year,
+      'category': book.category,
+      'image': await MultipartFile.fromFile(book.imageURLs[0] ,filename: book.imageNames[0]),
       // "files": [
       //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
       //   await MultipartFile.fromFile("./developerlibs.txt", filename: "developerlibs.txt"),
@@ -80,15 +82,16 @@ class AuthService{
     }
   }
 
-  getAllBooks() async{
-    try{
-      return await dio.get('http://10.0.2.2:3000/product/getAllBooks');
-    }
-    on DioError catch(err){
-      //Fluttertoast.showToast(msg: err.response.data['msg']);
-      print('non object');
-      return err.response;
-    }
-  }
+   Future<List<Book>> getAllBooks() async {
+     var data = await http.get("http://10.0.2.2:3000/product/getAllBooks");
+     var jsonData = json.decode(data.body);
+     List<Book> books = [];
+     for(var b in jsonData){
+       Book book = Book.fromJson(b);
+       books.add(book);
+     }
+     print(books.length);
+     return books;
+   }
 
 }

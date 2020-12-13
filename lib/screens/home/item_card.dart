@@ -1,19 +1,27 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:share_books/constrain.dart';
+import 'package:share_books/model/book.dart';
 import 'package:share_books/screens/home/detail.dart';
 import 'package:share_books/screens/home/product.dart';
+import 'package:share_books/services/cut_price.dart';
+import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 
 class ItemCard extends StatelessWidget {
-  final Product product;
+  final Book book;
   final Function press;
+
+
   const ItemCard({
     Key key,
-    this.product,
+    this.book,
     this.press,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final money = NumberFormat("#,##0", "en_US");
     return GestureDetector(
       onTap: press,
       child: Card(
@@ -25,7 +33,7 @@ class ItemCard extends StatelessWidget {
               //borderRadius: BorderRadiusDirectional.all(Radius.circular(5)),
               color: Colors.white,
             ),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(8),
             // For  demo we use fixed height  and width
             // Now we dont need them
             //  height: 120,
@@ -39,20 +47,43 @@ class ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: "${product.id}",
-                  child: Image.asset(product.image),
+                  tag: "${book.id}",
+                  //child: Image.network(book.imageURLs[0], width: 200, height: 200, fit: BoxFit.contain),
+                  child: Image.network(book.imageURLs[0], width: 200, height: 100, fit: BoxFit.fitWidth,),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10 / 4),
+                Container(
+                  height: 40,
+                  padding: const EdgeInsets.only(top: 2.5),
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     // products is out demo list
-                    product.title,
-                    style: TextStyle(color: Constrain().selectedColor),
+                    book.title,
+                    style: TextStyle(color: Constrain().selectedColor, fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
                 ),
+
+                SizedBox(height: 5,),
                 Text(
-                  "\$${product.price}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  money.format(double.parse(book.price)) + " VND",
+                  style: TextStyle(color: Colors.green),
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                Row(
+
+                  children: [
+                    Icon(Icons.location_on, size: 12, color: Colors.grey,),
+                    SizedBox(width: 3,),
+
+                    Flexible(
+                      child: Text(
+                        "${book.address}",
+                        style: TextStyle(fontSize: 12, color: Colors.grey), overflow: TextOverflow.ellipsis
+                      ),
+                    ),
+                  ],
                 )
               ],
             ),
@@ -62,7 +93,7 @@ class ItemCard extends StatelessWidget {
                 context,
                 new MaterialPageRoute(
                     builder: (BuildContext context) => Detail(
-                          product: product,
+                          book: book,
                         )));
           },
         ),

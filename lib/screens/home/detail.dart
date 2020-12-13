@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:share_books/model/book.dart';
 import 'package:share_books/screens/home/product.dart';
 
 class Detail extends StatelessWidget {
-  final Product product;
+  final Book book;
   final canChat;
-  const Detail({Key key, @required this.product, this.canChat = true}) : super(key: key);
+  const Detail({Key key, @required this.book, this.canChat = true}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final money = NumberFormat("#,##0", "en_US");
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.title),
+        title: Text(book.title),
       ),
       
       body: ListView(
@@ -17,16 +20,16 @@ class Detail extends StatelessWidget {
         children: [
           Container(
             width: MediaQuery.of(context).size.width - 20,
-            child: Image.asset(product.image),
+            child: Image.network(book.imageURLs[0], width: 300, height: 300, fit: BoxFit.fitWidth,),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),),
+                Text(book.title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),),
                 SizedBox(height: 5.0,),
-                Text("\$ " + product.price.toString(), style: TextStyle(color: Colors.green),)
+                Text(money.format(double.parse(book.price)) + " VND", style: TextStyle(color: Colors.green),)
               ],
             )
           ),
@@ -34,7 +37,7 @@ class Detail extends StatelessWidget {
           Divider(),
           Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text(product.description),
+            child: Text(book.subtitle),
           )
         ],
       ),

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:share_books/constrain.dart';
+import 'package:share_books/model/book.dart';
 import 'package:share_books/screens/home/post_product.dart';
 import 'package:share_books/screens/home/product.dart';
 import 'package:share_books/services/authservice.dart';
@@ -15,9 +18,12 @@ class _MarketScreenState extends State<MarketScreen> {
   bool _folded = false;
   TextEditingController _editingController = new TextEditingController();
 
-  List<Product> books = AuthService().getAllBooks().then((val){
-    print(val);
-  });
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getBooks();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -73,24 +79,30 @@ class _MarketScreenState extends State<MarketScreen> {
         color: Colors.blue[50],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: GridView.builder(
-              itemCount: products.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 2,
-                crossAxisSpacing: 2,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) => ItemCard(
-                product: products[index],
-                // press: () => Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => DetailsScreen(
-                //         product: products[index],
-                //       ),
-                //     )),
-              )
+          child: FutureBuilder(
+            future: AuthService().getAllBooks(),
+            builder: (BuildContext context, AsyncSnapshot snapshot){
+              return GridView.builder(
+                  itemCount: snapshot.data.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 2,
+                    crossAxisSpacing: 2,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemBuilder: (context, index) => ItemCard(
+                    book: snapshot.data[index],
+                    // press: () => Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => DetailsScreen(
+                    //         product: products[index],
+                    //       ),
+                    //     )),
+                  )
+              );
+            }
+
           ),
         ),
       ),
