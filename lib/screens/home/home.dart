@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:share_books/constrain.dart';
+import 'package:share_books/model/current_user.dart';
 import 'package:share_books/model/user.dart';
 import 'package:share_books/screens/home/market_screen.dart';
 import 'package:share_books/screens/home/notifical/notification_screen.dart';
@@ -7,7 +11,10 @@ import 'package:share_books/screens/home/profile/profile_screen.dart';
 import 'package:share_books/screens/home/review/review_screen.dart';
 import 'package:share_books/screens/login_screen.dart';
 import 'package:share_books/services/authservice.dart';
+import 'package:share_books/services/review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class Home extends StatefulWidget {
   @override
@@ -16,12 +23,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
+  int _selectedIndex = 0;
+
   bool isLoaded = false;
   User user; // = new User(name: 'Loading...', imageUrl: null, phoneNumber: 'Loading...', address: 'Loading...');
 
   SharedPreferences sharedPreferences;
   String token;
-
 
 
   checkLoginStatus() async {
@@ -31,27 +39,44 @@ class _HomeState extends State<Home> {
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginScreen()), (Route<dynamic> route) => false);
     else {
       await AuthService().getInfor(sharedPreferences.getString('token')).then((val) {
-        user =  new User(name: val.data['user']['name'].toString(), imageUrl: val.data['user']['address'], phoneNumber: val.data['user']['phone_number'], address: val.data['user']['address']);
-        //print(user.name);
-        isLoaded = true;
-        setState(() {
+        //var jsonData = json.decode(val.data);
+        if(val.data["success"]){
+          user = User.fromJson(val.data["user"]);
+          //print(val);
+          //user = Current.user;
+
+          //new User(name: val.data['user']['name'].toString(), imageUrl: val.data['user']['address'], phoneNumber: val.data['user']['phone_number'], address: val.data['user']['address']);
+          Current.user = user;
+          print(user.name);
+          //print(user.name);
           isLoaded = true;
-        });
+          setState(() {
+            isLoaded = true;
+          });
+        }
+
       });
     }
+  }
+
+  clearShared() async{
+    sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
   }
 
 
   @override
   void initState(){
     checkLoginStatus();
+    //clearShared();
     super.initState();
 
   }
 
-  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
+    streamController.add(AuthService().getAllBooks());
     return !isLoaded?
     Scaffold(
       body: Center(
@@ -78,8 +103,8 @@ class _HomeState extends State<Home> {
         body: IndexedStack(
           index: _selectedIndex,
           children: [
-            MarketScreen(),
-            ReviewScreen(),
+            MarketScreen(futureBooks: AuthService().getAllBooks(), stream: streamController.stream,),
+            ReviewScreen(futureReviews: ReviewService().getAllReview(),),
             NotificationScreen(),
             ProfileScreen(user: user,)
 
@@ -96,7 +121,7 @@ class _HomeState extends State<Home> {
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.store),
-              title: Text("Market")
+              title: Text("Chợ sách")
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.camera),
@@ -104,11 +129,11 @@ class _HomeState extends State<Home> {
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.notifications),
-                title: Text("Notifications")
+                title: Text("Thông báo")
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle),
-                title: Text("Account"),
+                title: Text("Tài Khoản"),
             )
           ],
 

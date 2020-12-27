@@ -29,6 +29,8 @@ dependencies:
   image_picker:
   flutter_money_formatter:
   intl:
+  multi_image_picker: ^4.7.14
+  url_launcher:
 
 
   # The following adds the Cupertino Icons font to your application.

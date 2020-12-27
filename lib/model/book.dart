@@ -10,12 +10,13 @@ class Book {
   final String publisher;
   final String year;
   final String category;
-  final DateTime timeUpload;
+  final String timeUpload;
   final double score;
   final List<String> imageURLs;
   final List<String> imageNames;
   final String owner;
   final String address;
+  final bool active;
   //final Image image;
 
   Book(
@@ -32,19 +33,20 @@ class Book {
       this.imageNames,
         this.timeUpload,
         this.score,
-        this.address
+        this.address,
+        this.active
       //this.image
       });
 
   factory Book.fromJson(Map<String, dynamic> json) {
     List<String> _imageURLs = [];
     for (String imageURL in json["imageURLs"]) {
-      String path = "http://10.0.2.2:3000/uploads/" + imageURL.split('\\').last;
+      String path = "http://10.0.2.2:3000/" + imageURL.split('\\').last;
       _imageURLs.add(path);
     }
     List<String> times = json["time_up_load"].toString().split('T')[0].split('-');
     //DateTime _timeUpload = new DateTime(int.parse(times[0]), int.parse(times[1]), int.parse(times[2]));
-    DateTime _timeUpload = DateTime.parse(json["time_up_load"].toString());
+    //String _timeUpload = DateTime.parse(json["time_up_load"].toString()).toString();
 
     return Book(
         id: json["_id"] as String,
@@ -59,8 +61,9 @@ class Book {
         owner: json["owner"] as String,
         imageURLs: _imageURLs,
         score: json["score"].toDouble(),
-        timeUpload: _timeUpload,
-        address: json["address"] as String
+        timeUpload: json["time_up_load"].toString(),
+        address: json["address"] as String,
+        active: json["active"] as bool
         //image: Image.asset("assets/images/book_1.jpg")
       //image: Image.network(imageURLs[0], width: 200, height: 100, fit: BoxFit.fitWidth,)
         );

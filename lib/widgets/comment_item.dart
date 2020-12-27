@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_books/model/comment.dart';
+import 'package:share_books/services/authservice.dart';
+import 'package:share_books/services/time_ago.dart';
 import 'package:share_books/widgets/avatar.dart';
 
 class CommentItem extends StatelessWidget {
@@ -12,7 +14,24 @@ class CommentItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Avatar(),
+          FutureBuilder(
+              future: AuthService().getUser(comment.username),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.data == null) {
+                  return Avatar();
+                } else {
+                  //print(snapshot.data);
+                  return Row(
+                    children: [
+                      Avatar(
+                        radius: 20.0,
+                        imageUrl: snapshot.data.imageUrl,
+                        circleColor: Colors.blue,
+                      ),
+                    ],
+                  );
+                }
+              }),
           SizedBox(width: 10,),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,14 +54,14 @@ class CommentItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Name", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
-                      Text("comment.content", maxLines: null,)
+                      Text(comment.username, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+                      Text(comment.content, maxLines: null,)
                     ],
                   )
               ),
               Padding(
                 padding: EdgeInsets.only(left: 10),
-                child: Text("comment.time"),
+                child: Text(TimeAgo.timeAgoSinceDate(comment.time)),
               )
             ],
           ),

@@ -33,7 +33,7 @@ class _SignUpScreen extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("SIGN UP"),
+        title: Text("ĐĂNG KÍ"),
         centerTitle: true,
 
       ),
@@ -61,7 +61,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 10),
                           icon: Icon(Icons.account_circle),
-                          hintText: 'username',
+                          hintText: 'Tên đăng nhập',
                           hintStyle: TextStyle(color: Colors.blue),
                           border: InputBorder.none,
                           suffixIcon: IconButton(
@@ -74,6 +74,12 @@ class _SignUpScreen extends State<SignUpScreen> {
                           )
 
                       ),
+
+                      onTap: (){
+                        setState(() {
+                          falseConstrain = "";
+                        });
+                      },
 
                     ),
                   ),
@@ -91,7 +97,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 10),
                           icon: Icon(Icons.phone),
-                          hintText: 'phone number',
+                          hintText: 'Số điện thoại',
                           hintStyle: TextStyle(color: Colors.blue),
                           border: InputBorder.none,
                           suffixIcon: IconButton(
@@ -104,6 +110,11 @@ class _SignUpScreen extends State<SignUpScreen> {
                           )
 
                       ),
+                      onTap: (){
+                        setState(() {
+                          falseConstrain = "";
+                        });
+                      },
 
                     ),
                   ),
@@ -121,7 +132,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 10),
                           icon: Icon(Icons.location_on),
-                          hintText: 'address',
+                          hintText: 'Địa chỉ',
                           hintStyle: TextStyle(color: Colors.blue),
                           border: InputBorder.none,
                           suffixIcon: IconButton(
@@ -134,6 +145,11 @@ class _SignUpScreen extends State<SignUpScreen> {
                           )
 
                       ),
+                      onTap: (){
+                        setState(() {
+                          falseConstrain = "";
+                        });
+                      },
 
                     ),
                   ),
@@ -152,7 +168,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 10),
                           icon: Icon(Icons.lock),
-                          hintText: 'password',
+                          hintText: 'Mật khẩu',
                           hintStyle: TextStyle(color: Colors.blue),
                           border: InputBorder.none,
                           suffixIcon: IconButton(
@@ -165,6 +181,11 @@ class _SignUpScreen extends State<SignUpScreen> {
                           )
 
                       ),
+                      onTap: (){
+                        setState(() {
+                          falseConstrain = "";
+                        });
+                      },
 
                     ),
                   ),
@@ -183,7 +204,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 10),
                           icon: Icon(Icons.lock),
-                          hintText: 'confirm password',
+                          hintText: 'Xác nhận mật khẩu',
                           hintStyle: TextStyle(color: Colors.blue),
                           border: InputBorder.none,
                           suffixIcon: IconButton(
@@ -196,6 +217,11 @@ class _SignUpScreen extends State<SignUpScreen> {
                           )
 
                       ),
+                      onTap: (){
+                        setState(() {
+                          falseConstrain = "";
+                        });
+                      },
 
                     ),
                   ),
@@ -208,7 +234,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                     ),
                     child: FlatButton(
-                      child: Text("SIGNUP"),
+                      child: Text("ĐĂNG KÍ"),
                       onPressed: (){
 
                         username = _username.value.text;
@@ -219,12 +245,12 @@ class _SignUpScreen extends State<SignUpScreen> {
 
                         if(username == '' || phoneNumber == '' || address == '' || password ==''){
                           setState(() {
-                            falseConstrain = 'something is null';
+                            falseConstrain = 'Điền đầy đủ các trường!';
                           });
                         }
                         else if(confirmPassword != password){
                           setState(() {
-                            falseConstrain = 'password is not fill';
+                            falseConstrain = "Mật khẩu không trùng khớp!";
                           });
                         }
                         else{
@@ -236,10 +262,20 @@ class _SignUpScreen extends State<SignUpScreen> {
                                   var token = val.data['token'];
                                   login(token);
                                 }
-                                else{
-                                  print('no');
-                                }
                               });
+                            }
+                            else{
+                              print(val.data["msg"]);
+                              if(val.data["msg"] == "err"){
+                                setState(() {
+                                  falseConstrain = "Lỗi Server!";
+                                });
+                              }
+                              if(val.data["msg"] == "name exit"){
+                                setState(() {
+                                  falseConstrain = "Tên đăng nhập đã tồn tại!";
+                                });
+                              }
                             }
                           });
                         }

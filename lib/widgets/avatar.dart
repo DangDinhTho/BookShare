@@ -12,7 +12,7 @@ class Avatar extends StatelessWidget {
 
   const Avatar(
       {Key key,
-        @required this.imageUrl,
+        this.imageUrl = "http://10.0.2.2:3000/uploads/avatar.jpeg",
         //this.isActive = false,
         this.hasBorder = false,
         this.radius = 20.0,
@@ -36,7 +36,7 @@ class Avatar extends StatelessWidget {
             //thì bán kính avatar của người đó sẽ phình to ra để che đi background avatar
             //trái lại (hasBorder == true) tức là story của người đó chưa được xem, thì bán kính avatar sẽ nhỏ lại để lộ ra 1 phần viền của background avatar
             backgroundColor: Colors.grey[200], //0xFFEEEEEE
-            backgroundImage: Image.network("https://smartmobilestudio.com/wp-content/uploads/2012/06/leather-book-preview.png").image//CachedNetworkImageProvider(imageUrl),
+            backgroundImage: Image.network(imageUrl).image//CachedNetworkImageProvider(imageUrl),
           ),
         ),
         // Positioned(

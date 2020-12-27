@@ -4,6 +4,7 @@ import 'package:share_books/widgets/avatar.dart';
 
 class NotificationItem extends StatelessWidget {
   //final User user;
+  final String title;
   final String content;
   final bool seen;
   final IconData icon;
@@ -15,7 +16,8 @@ class NotificationItem extends StatelessWidget {
     this.content,
     this.seen = false,
     this.icon,
-    this.circleColor
+    this.circleColor,
+    this.title = "",
   }) : super(key : key);
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class NotificationItem extends StatelessWidget {
                   child: Text.rich(
                       TextSpan(
                           children: [
-                           // TextSpan(text: user.name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                            TextSpan(text: title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                             TextSpan(text: " " + content, style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black))
                           ]
 
