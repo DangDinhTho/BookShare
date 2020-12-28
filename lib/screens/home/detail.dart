@@ -8,6 +8,8 @@ import 'package:share_books/model/current_user.dart';
 import 'package:share_books/model/user.dart';
 import 'package:share_books/screens/home/market_screen.dart';
 import 'package:share_books/screens/home/product.dart';
+import 'package:share_books/screens/home/profile/profile_screen.dart';
+import 'package:share_books/screens/home/profile_books.dart';
 import 'package:share_books/services/authservice.dart';
 import 'package:share_books/services/time_ago.dart';
 import 'package:share_books/widgets/avatar.dart';
@@ -27,6 +29,8 @@ class _DetailState extends State<Detail> {
 
   Book book;
   bool canChat;
+  int indexSelected = 0;
+  Future<List<Book>> futureBooks;
   _DetailState({Key key, @required this.book, this.canChat})
       : super();
 
@@ -40,6 +44,52 @@ class _DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    return IndexedStack(
+      index: indexSelected,
+      children: [
+        detailBook(),
+        Scaffold(
+          appBar: AppBar(
+            leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white,),
+            onPressed: (){
+              Navigator.pop(context);
+            },),
+            title: Text("Thể loại: " + book.category),
+          ),
+          body: ProfileBooks(futureBooks: AuthService().getBooksOfCategory(book.category), type: 3,),
+        ),
+
+        Scaffold(
+          appBar: AppBar(
+            leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white,),
+              onPressed: (){
+                Navigator.pop(context);
+              },),
+            title: Text("Tác giả: " + book.author),
+          ),
+          body: ProfileBooks(futureBooks: AuthService().getBooksOfAuthor(book.author), type: 4,),
+        ),
+
+        Scaffold(
+          appBar: AppBar(
+            leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white,),
+              onPressed: (){
+                Navigator.pop(context);
+              },),
+            title: Text("Nhà xuất bản: " + book.publisher),
+          ),
+          body: ProfileBooks(futureBooks: AuthService().getBooksOfPublisher(book.publisher), type: 5,),
+        ),
+
+
+        //ProfileBooks(futureBooks: futureBooks, type: 4,),
+      ],
+    );
+  }
+
+  Widget detailBook(){
     final money = NumberFormat("#,##0", "en_US");
     User owner;
     final roundedShape = RoundedRectangleBorder(
@@ -59,21 +109,20 @@ class _DetailState extends State<Detail> {
     bool isOwner = false;
     if(Current.user.name == book.owner)
       isOwner = true;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.book.title),
         actions: [
-           isOwner ? FlatButton(
+          isOwner ? FlatButton(
             child: book.active ? Text("Đã bán") : Text("Đã bán", style: TextStyle(color: Colors.white),),
             onPressed: (){
               if(book.active){
                 AuthService().setActiveBook(book.id, false).then((val){
                   if(val.data["success"]){
                     Book b = Book.fromJson(val.data["result"]);
-                     setState(() {
-                       book = b;
-                     });
+                    setState(() {
+                      book = b;
+                    });
                   }
                 });
               }
@@ -128,35 +177,35 @@ class _DetailState extends State<Detail> {
                       Container(
                         height: 25,
                         child: saved ?
-                            RaisedButton(
-                              color: Colors.blue,
-                              textColor: Colors.white,
-                              padding: EdgeInsets.all(0),
-                              shape:  stadiumBorder,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text("Đã lưu", style: TextStyle(fontSize: 12, color: Colors.white),),
-                                  SizedBox(width: 3,),
-                                  Icon(Icons.favorite, color: Colors.white, size: 17,)
-                                ],
-                              )
-                              ,
+                        RaisedButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          padding: EdgeInsets.all(0),
+                          shape:  stadiumBorder,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text("Đã lưu", style: TextStyle(fontSize: 12, color: Colors.white),),
+                              SizedBox(width: 3,),
+                              Icon(Icons.favorite, color: Colors.white, size: 17,)
+                            ],
+                          )
+                          ,
 
-                              onPressed: (){
-                                AuthService().unSaveBook(widget.book.id).then((val) {
-                                  if (val.data["success"]) {
-                                    //var jsonData = json.decode(val.data["user"]);
-                                    Current.user = User.fromJson(val.data["user"]);
-                                    print("Deleteted");
-                                    setState(() {
-
-                                    });
-                                  }
+                          onPressed: (){
+                            AuthService().unSaveBook(widget.book.id).then((val) {
+                              if (val.data["success"]) {
+                                //var jsonData = json.decode(val.data["user"]);
+                                Current.user = User.fromJson(val.data["user"]);
+                                print("Deleteted");
+                                setState(() {
+                                  //saved = false;
                                 });
-                              },
-                            )
-                        : FlatButton(
+                              }
+                            });
+                          },
+                        )
+                            : FlatButton(
                           color: Colors.white,
                           textColor: Colors.blue,
                           padding: EdgeInsets.all(0),
@@ -178,7 +227,7 @@ class _DetailState extends State<Detail> {
                                 Current.user = User.fromJson(val.data["user"]);
                                 print("Ola");
                                 setState(() {
-
+                                  //saved = true;
                                 });
                               }
                             });
@@ -225,50 +274,64 @@ class _DetailState extends State<Detail> {
                     );
                   } else {
                     owner = snapshot.data;
-                    return Row(
-                      children: [
-                        Avatar(
-                          radius: 20.0,
-                          imageUrl: snapshot.data.imageUrl,
-                          circleColor: Colors.blue,
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  snapshot.data.name,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      size: 14,
-                                      color: Colors.grey,
+                    return FlatButton(
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+                      textColor: Colors.black,
+                      child: Row(
+                        children: [
+                          Avatar(
+                            radius: 20.0,
+                            imageUrl: snapshot.data.imageUrl,
+                            circleColor: Colors.blue,
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      snapshot.data.name,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15, color: Colors.black),
                                     ),
-                                    SizedBox(
-                                      width: 3,
-                                    ),
-                                    Container(
-                                      width: 250,
-                                      child: Text(
-                                        snapshot.data.address,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: Colors.grey,
                                       ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ))
-                      ],
+                                      SizedBox(
+                                        width: 3,
+                                      ),
+                                      Container(
+                                        width: 250,
+                                        child: Text(
+                                          snapshot.data.address,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ))
+                        ],
+                      ),
+
+                      onPressed: (){
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (BuildContext context) => ProfileScreen(user: owner,)));
+                      },
                     );
                   }
                 }),
@@ -303,16 +366,12 @@ class _DetailState extends State<Detail> {
                         style: TextStyle(color: Colors.blue))
                   ],
                 ),
-                // onPressed: () {
-                //   Navigator.push(
-                //       context,
-                //       new MaterialPageRoute(
-                //           builder: (BuildContext context) => MarketScreen(
-                //             futureBooks:
-                //             AuthService().getBooksOfCategory(widget.book.category),
-                //             showBottomButton: true,
-                //           )));
-                // },
+                onPressed: () {
+                  //Future<List<Book>> _futureBooks = AuthService().getBooksOfCategory(book.category);
+                  setState(() {
+                    indexSelected = 1;
+                  });
+                },
               ),
               FlatButton(
                 child: Row(
@@ -328,16 +387,11 @@ class _DetailState extends State<Detail> {
                         style: TextStyle(color: Colors.blue))
                   ],
                 ),
-                // onPressed: () {
-                //   Navigator.push(
-                //       context,
-                //       new MaterialPageRoute(
-                //           builder: (BuildContext context) => MarketScreen(
-                //                 futureBooks:
-                //                     AuthService().getBooksOfAuthor(widget.book.author),
-                //             showBottomButton: true,
-                //               )));
-                // },
+               onPressed: (){
+                 setState(() {
+                   indexSelected = 2;
+                 });
+               },
               ),
               FlatButton(
                 child: Row(
@@ -355,16 +409,11 @@ class _DetailState extends State<Detail> {
                     )
                   ],
                 ),
-                // onPressed: () {
-                //   Navigator.push(
-                //       context,
-                //       new MaterialPageRoute(
-                //           builder: (BuildContext context) => MarketScreen(
-                //             futureBooks:
-                //             AuthService().getBooksOfPublisher(widget.book.publisher),
-                //             showBottomButton: true,
-                //           )));
-                // },
+                onPressed: (){
+                  setState(() {
+                    indexSelected = 3;
+                  });
+                },
               ),
               FlatButton(
                 child: Row(

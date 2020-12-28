@@ -11,12 +11,14 @@ import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 class ItemCard extends StatelessWidget {
   final Book book;
   final Function press;
+  final int contextId;
 
 
   const ItemCard({
     Key key,
     this.book,
     this.press,
+    this.contextId
   }) : super(key: key);
 
   @override
@@ -47,9 +49,10 @@ class ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: "${book.id}",
+                  tag: "${book.id}$contextId",
                   //child: Image.network(book.imageURLs[0], width: 200, height: 200, fit: BoxFit.contain),
-                  child: Image.network(book.imageURLs[0], width: 200, height: 100, fit: BoxFit.fitWidth,),
+                  child:
+                  Image.network(book.imageURLs[0], width: 200, height: 100, fit: BoxFit.fitWidth,),
                 ),
                 Container(
                   height: 40,
@@ -65,10 +68,25 @@ class ItemCard extends StatelessWidget {
                 ),
 
                 SizedBox(height: 5,),
-                Text(
-                  money.format(double.parse(book.price)) + " VND",
-                  style: TextStyle(color: Colors.green),
-                  overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.only(left: 2, right: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        money.format(double.parse(book.price)) + " VND",
+                        style: TextStyle(color: Colors.green),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      book.score > 0 ? Row(
+                        children: [
+                          Icon(Icons.check_circle, size: 12, color: Colors.blue,),
+                          SizedBox(width: 2,),
+                          Text("Ưu tiên", style: TextStyle(fontSize: 11, color: Colors.blue),)
+                        ],
+                      ) : SizedBox()
+                    ],
+                  ),
                 ),
 
                 Row(
@@ -84,7 +102,7 @@ class ItemCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

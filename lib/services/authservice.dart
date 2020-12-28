@@ -11,6 +11,7 @@ import 'package:share_books/model/book.dart';
 import 'package:share_books/model/current_user.dart';
 import 'package:share_books/model/user.dart';
 import 'package:share_books/screens/home/product.dart';
+import 'package:share_books/widgets/avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class AuthService{
   Dio dio = new Dio();
@@ -86,6 +87,7 @@ class AuthService{
       'publisher': book.publisher,
       'year': book.year,
       'category': book.category,
+      'score': book.score.toInt().toString(),
       'image': await MultipartFile.fromFile(book.imageURLs[0]),
     });
 
@@ -165,15 +167,26 @@ class AuthService{
 
 
 
-   Future<List<Book>> getAllBooks() async {
-     var data = await http.get("http://10.0.2.2:3000/product/getAllBooks");
+   Future<List<Book>> getAllBooks(List<Book> books) async {
+     var skip = books.length;
+     var data = await http.get("http://10.0.2.2:3000/product/getAllBooks?skip=$skip");
      var jsonData = json.decode(data.body);
-     List<Book> books = [];
+     //List<Book> books = [];
      for(var b in jsonData){
        Book book = Book.fromJson(b);
+       bool exits = false;
+       if(books.length > 0)
+       for(var b0 in books){
+         if(b0.id == book.id){
+           exits = true;
+           break;
+         }
+       }
+       if(!exits)
        books.add(book);
      }
-     return books;
+     return sortBooks(books);
+     //return books;
    }
 
   Future<List<Book>> getBooksFilter(String category, String minCost, String maxCost) async {
@@ -188,7 +201,8 @@ class AuthService{
         Book book = Book.fromJson(b);
         books.add(book);
       }
-      return books;
+      return sortBooks(books);
+      //return books;
     }
     else return null;
   }
@@ -204,7 +218,8 @@ class AuthService{
           Book book = Book.fromJson(b);
           books.add(book);
         }
-        return books;
+        //return books;
+        return sortBooks(books);
       }
       else return null;
   }
@@ -220,7 +235,8 @@ class AuthService{
         Book book = Book.fromJson(b);
         books.add(book);
       }
-      return books;
+      //return books;
+      return sortBooks(books);
     }
     else return null;
   }
@@ -236,7 +252,8 @@ class AuthService{
         Book book = Book.fromJson(b);
         books.add(book);
       }
-      return books;
+      //return books;
+      return sortBooks(books);
     }
     else return null;
   }
@@ -252,7 +269,8 @@ class AuthService{
         Book book = Book.fromJson(b);
         books.add(book);
       }
-      return books;
+      //return books;
+      return sortBooks(books);
     }
     else return null;
   }
@@ -284,6 +302,7 @@ class AuthService{
         Book book = Book.fromJson(b);
         books.add(book);
       }
+      print(books.length);
       return books;
     }
     else return null;
@@ -309,6 +328,12 @@ class AuthService{
       print('non object');
       return err.response;
     }
+  }
+
+  sortBooks(List<Book> books){
+    List<Book> _books = books;
+       _books.sort((a, b) => b.score.compareTo(a.score));
+       return _books;
   }
 
 }

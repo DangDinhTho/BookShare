@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
@@ -7,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_books/model/current_user.dart';
 import 'package:share_books/model/user.dart';
+import 'package:share_books/screens/home/home.dart';
+import 'package:share_books/screens/home/profile_books.dart';
 import 'package:share_books/screens/home/review/review_screen.dart';
 import 'package:share_books/screens/login_screen.dart';
 import 'package:share_books/services/authservice.dart';
@@ -26,6 +29,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   User user;
+  int indexSelected = 0;
   _ProfileScreenState({Key key, this.user}) : super();
 
   logout() async {
@@ -48,6 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     Navigator.of(context).pop();
+    if(fileImage != null)
     _showReviewAvatar(context);
   }
 
@@ -58,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //fileImages.add(File(image.path));
     });
     Navigator.of(context).pop();
+    if(fileImage != null)
     _showReviewAvatar(context);
   }
 
@@ -171,13 +177,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
   }
 
+  Widget title(){
+    String tit;
+    switch(indexSelected){
+      case 0: tit = user.name;
+      break;
+      case 1: tit = "Kho sách của " + user.name;
+      break;
+      case 2: tit = "Sách đã lưu của " + user.name;
+      break;
+    }
+    return Text(tit);
+  }
+
+  Future<Null> refresh() async {
+    Completer<Null> completer = new Completer();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    await AuthService().getInfor(sharedPreferences.getString('token')).then((val) {
+      //var jsonData = json.decode(val.data);
+      if(val.data["success"]){
+        user = User.fromJson(val.data["user"]);
+        Current.user = user;
+        print("complete");
+        completer.complete();
+        setState(() {
+
+        });
+      }
+
+    });
+
+
+    return completer.future;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(user.name),
+          title: title(),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white,),
+            onPressed: (){
+              setState(() {
+                indexSelected = 0;
+              });
+            },
+          ),
           actions: [
-            FlatButton(
+            user.name == Current.user.name ? FlatButton(
               child: Row(
                 children: [
                   Text("Đăng xuất", style: TextStyle(color: Colors.white),),
@@ -188,171 +237,197 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () {
                 logout();
               },
-            )
+            ) : SizedBox()
           ],
         ),
-        body: ListView(
-          padding: EdgeInsets.only(top: 5.0),
+        body: IndexedStack(
+          index: indexSelected,
           children: [
-            Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 20),
-                  child: Container(
-                    height: 100,
-                    width: MediaQuery.of(context).size.width,
-                    //color: Colors.green,
-                    child: Image.network(
-                        "http://10.0.2.2:3000/uploads/cover.jpeg"),
-                  ),
-                ),
-                Avatar(
-                  imageUrl: user.imageUrl,
-                  radius: 50,
-                  hasBorder: true,
-                ),
-                Positioned(
-                    bottom: 0,
-                    child: FlatButton(
-                      child: Text("Edit"),
-                      onPressed: () {
-                        _showChoiseDialog(context);
-                      },
-                    ))
-              ],
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.phone_iphone,
-                color: Colors.redAccent,
-                size: 35,
-              ),
-              title: Text(
-                "Phone",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              subtitle: Text(user.phoneNumber),
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  print("Edit");
-                },
-              ),
-            ),
-            Divider(
-              thickness: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.home,
-                color: Colors.green,
-                size: 35,
-              ),
-              title: Text(
-                "Address",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              subtitle: Text(user.address),
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  print("Edit");
-                },
-              ),
-            ),
-            Divider(
-              thickness: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.library_books,
-                color: Colors.cyan,
-                size: 35,
-              ),
-              title: Text(
-                "Tủ sách",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              subtitle: user.library == null
-                  ? Text("0 cuốn sách")
-                  : Text(user.library.length.toString() + " cuốn sách"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => MarketScreen(
-                              futureBooks:
-                                  AuthService().getBooksOfPoster(user.name), showBottomButton: true,
-                            )));
-              },
-            ),
-            Divider(
-              thickness: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.rate_review,
-                color: Colors.orange,
-                size: 35,
-              ),
-              title: Text(
-                "Bài review",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              subtitle: user.post == null
-                  ? Text("0 bài review")
-                  : Text(user.post.length.toString() + " bài review"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => ReviewScreen(
-                              futureReviews:
-                                  ReviewService().getReviewOwner(user.name),
-                            )));
-              },
-            ),
-
-            Divider(
-              thickness: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.save_alt,
-                color: Colors.lightBlue,
-                size: 35,
-              ),
-              title: Text(
-                "Sách đã lưu",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-              subtitle: user.post == null
-                  ? Text("Chưa lưu cuốn sách nào")
-                  : Text(user.saved.length.toString() + " sách đã lưu"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (BuildContext context) => MarketScreen(
-                          futureBooks:
-                          AuthService().getBooksSaved(user.name), showBottomButton: true,
-                        )));
-              },
-            ),
-            Divider(
-              thickness: 1,
-            ),
+            defaultProfile(),
+            ProfileBooks(futureBooks: AuthService().getBooksOfPoster(user.name), type: 1, username: user.name,),
+            ProfileBooks(futureBooks: AuthService().getBooksSaved(user.name), type: 2, username: user.name,)
           ],
-        ));
+    )
+
+
+        );
+  }
+
+  Widget defaultProfile(){
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: ListView(
+        padding: EdgeInsets.only(top: 5.0),
+        children: [
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Padding(
+                padding:
+                const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 20),
+                child: Container(
+                  height: 100,
+                  width: MediaQuery.of(context).size.width,
+                  //color: Colors.green,
+                  child: Image.network(
+                      "http://10.0.2.2:3000/uploads/cover.jpeg"),
+                ),
+              ),
+              Avatar(
+                imageUrl: user.imageUrl,
+                radius: 50,
+                hasBorder: true,
+              ),
+              user.name == Current.user.name ? Positioned(
+                  bottom: 0,
+                  child: FlatButton(
+                    child: Text("Edit"),
+                    onPressed: () {
+                      _showChoiseDialog(context);
+                    },
+                  )) : SizedBox()
+            ],
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.phone_iphone,
+              color: Colors.redAccent,
+              size: 35,
+            ),
+            title: Text(
+              "Phone",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            subtitle: Text(user.phoneNumber),
+            trailing: user.name == Current.user.name ? IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                print("Edit");
+              },
+            ) : SizedBox(),
+          ),
+          Divider(
+            thickness: 1,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.home,
+              color: Colors.green,
+              size: 35,
+            ),
+            title: Text(
+              "Address",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            subtitle: Text(user.address),
+            trailing: user.name == Current.user.name ? IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                print("Edit");
+              },
+            ) : SizedBox(),
+          ),
+          Divider(
+            thickness: 1,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.library_books,
+              color: Colors.cyan,
+              size: 35,
+            ),
+            title: Text(
+              "Kho sách",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            subtitle: user.library == null
+                ? Text("0 cuốn sách")
+                : Text(user.library.length.toString() + " cuốn sách"),
+            trailing: Icon(Icons.arrow_forward_ios),
+            onTap: () {
+
+           setState(() {
+             indexSelected = 1;
+           });
+              // Navigator.push(
+              //     context,
+              //     new MaterialPageRoute(
+              //         builder: (BuildContext context) =>
+              //             ProfileBooks(futureBooks: AuthService().getBooksOfPoster(user.name))
+              //       //Home(indexSelected: 0,)
+              //
+              //     )
+              // );
+            },
+          ),
+          Divider(
+            thickness: 1,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.rate_review,
+              color: Colors.orange,
+              size: 35,
+            ),
+            title: Text(
+              "Bài review",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            subtitle: user.post == null
+                ? Text("0 bài review")
+                : Text(user.post.length.toString() + " bài review"),
+            trailing: Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (BuildContext context) => ReviewScreen(
+                        futureReviews:
+                        ReviewService().getReviewOwner(user.name),
+                      )));
+            },
+          ),
+
+          Divider(
+            thickness: 1,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.save_alt,
+              color: Colors.lightBlue,
+              size: 35,
+            ),
+            title: Text(
+              "Sách đã lưu",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            subtitle: user.post == null
+                ? Text("Chưa lưu cuốn sách nào")
+                : Text(user.saved.length.toString() + " sách đã lưu"),
+            trailing: Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              setState(() {
+                indexSelected = 2;
+              });
+              // Navigator.push(
+              //     context,
+              //     new MaterialPageRoute(
+              //         builder: (BuildContext context) => MarketScreen(
+              //           futureBooks:
+              //           AuthService().getBooksSaved(user.name),
+              //         )));
+            },
+          ),
+          Divider(
+            thickness: 1,
+          ),
+        ],
+      ),
+    );
   }
 }

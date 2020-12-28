@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 
@@ -45,9 +47,14 @@ class Book {
       _imageURLs.add(path);
     }
     List<String> times = json["time_up_load"].toString().split('T')[0].split('-');
-    //DateTime _timeUpload = new DateTime(int.parse(times[0]), int.parse(times[1]), int.parse(times[2]));
-    //String _timeUpload = DateTime.parse(json["time_up_load"].toString()).toString();
-
+    int _score = json["score"].toInt();
+    String dateString = json["time_up_load"].toString();
+    DateTime notificationDate = DateTime.parse(dateString);
+    //DateFormat("dd-MM-yyyy h:mma").parse("09-10-2020 08:29AM");
+    final date2 = DateTime.now();
+    final difference = date2.difference(notificationDate);
+    _score = _score - difference.inDays < 0 ? 0 : _score - difference.inDays;
+    print(" he $_score");
     return Book(
         id: json["_id"] as String,
         title: json["title"] as String,
@@ -60,7 +67,7 @@ class Book {
         category: json["category"] as String,
         owner: json["owner"] as String,
         imageURLs: _imageURLs,
-        score: json["score"].toDouble(),
+        score: _score.toDouble(),
         timeUpload: json["time_up_load"].toString(),
         address: json["address"] as String,
         active: json["active"] as bool

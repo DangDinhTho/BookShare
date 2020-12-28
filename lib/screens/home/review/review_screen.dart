@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_books/model/review.dart';
 import 'package:share_books/screens/home/review/post_review.dart';
+import 'package:share_books/services/authservice.dart';
 import 'package:share_books/services/review_service.dart';
 import 'package:share_books/widgets/avatar.dart';
 import 'package:share_books/widgets/post_container.dart';
@@ -51,17 +54,29 @@ class _ReviewScreenState extends State<ReviewScreen> {
               );
             }
             else {
-              return ListView.builder(
-                  itemCount: snapshot.data.length,
+              return RefreshIndicator(
+                onRefresh: refresh,
+                child: ListView.builder(
+                    itemCount: snapshot.data.length,
 
-                  itemBuilder: (context, index) =>
-                    PostContainer(review: snapshot.data[snapshot.data.length - index - 1])
+                    itemBuilder: (context, index) =>
+                      PostContainer(review: snapshot.data[index])
 
+                ),
               );
             }
           }
 
       ),
     );
+  }
+
+  Future<Null> refresh() async {
+    Completer<Null> completer = new Completer();
+    setState(() {
+      futureReviews = ReviewService().getAllReview();
+    });
+    completer.complete();
+    return completer.future;
   }
 }

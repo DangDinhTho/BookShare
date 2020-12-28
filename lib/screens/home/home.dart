@@ -14,17 +14,17 @@ import 'package:share_books/services/authservice.dart';
 import 'package:share_books/services/review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class Home extends StatefulWidget {
+  final int indexSelected;
+  const Home({Key key, this.indexSelected = 0});
   @override
-  _HomeState createState() => _HomeState();
+  _HomeState createState() => _HomeState(selectedIndex: indexSelected);
 }
 
 class _HomeState extends State<Home> {
 
-  int _selectedIndex = 0;
-
+  int selectedIndex = 0;
+   _HomeState({Key key, this.selectedIndex});
   bool isLoaded = false;
   User user; // = new User(name: 'Loading...', imageUrl: null, phoneNumber: 'Loading...', address: 'Loading...');
 
@@ -47,7 +47,6 @@ class _HomeState extends State<Home> {
 
           //new User(name: val.data['user']['name'].toString(), imageUrl: val.data['user']['address'], phoneNumber: val.data['user']['phone_number'], address: val.data['user']['address']);
           Current.user = user;
-          print(user.name);
           //print(user.name);
           isLoaded = true;
           setState(() {
@@ -70,13 +69,13 @@ class _HomeState extends State<Home> {
     checkLoginStatus();
     //clearShared();
     super.initState();
-
   }
+
 
 
   @override
   Widget build(BuildContext context) {
-    streamController.add(AuthService().getAllBooks());
+    streamController.add(AuthService().getAllBooks([]));
     return !isLoaded?
     Scaffold(
       body: Center(
@@ -101,9 +100,9 @@ class _HomeState extends State<Home> {
       length: 2,
       child: Scaffold(
         body: IndexedStack(
-          index: _selectedIndex,
+          index: selectedIndex,
           children: [
-            MarketScreen(futureBooks: AuthService().getAllBooks(), stream: streamController.stream,),
+            MarketScreen(),
             ReviewScreen(futureReviews: ReviewService().getAllReview(),),
             NotificationScreen(),
             ProfileScreen(user: user,)
@@ -115,7 +114,7 @@ class _HomeState extends State<Home> {
         bottomNavigationBar: BottomNavigationBar(
           elevation: 10,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
+          currentIndex: selectedIndex,
           //backgroundColor: Constrain().appColor,
           selectedItemColor: Constrain().selectedColor,
           items: [
@@ -139,7 +138,7 @@ class _HomeState extends State<Home> {
 
           onTap: (index){
             setState(() {
-              _selectedIndex = index;
+              selectedIndex = index;
             });
           },
         ),

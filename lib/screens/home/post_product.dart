@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 //import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:share_books/model/book.dart';
 import 'package:share_books/screens/home/detail.dart';
@@ -21,12 +22,21 @@ class PostProduct extends StatefulWidget {
 }
 
 class _PostProductState extends State<PostProduct> {
+  final money = NumberFormat("#,##0", "en_US");
   PickedFile fileImage;
   List<File> fileImages = new List<File>();
   int indexInput = 0;
-  var _category = ["Tiểu thuyết", "Truyện tranh", "Sách giáo khoa - Giáo trình", "Sách khoa học"];
+  var _category = [
+    "Tiểu thuyết",
+    "Truyện tranh",
+    "Sách giáo khoa - Giáo trình",
+    "Sách khoa học"
+  ];
   final _picker = ImagePicker();
   String dropdownValue;
+  bool prime = false;
+  double _currentSliderValue = 1, cost = 10000;
+  bool pay = false;
 
   TextEditingController title = new TextEditingController();
   TextEditingController description = new TextEditingController();
@@ -110,6 +120,62 @@ class _PostProductState extends State<PostProduct> {
         });
   }
 
+  Future<void> _showPayDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(child: Text("Xác nhận thanh toán: ${money.format(double.parse(cost.toString())) + " VND"}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),)),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(
+                  child: Container(
+                    height: 35,
+                    width: 120,
+                    decoration: BoxDecoration(
+                        color: pay ? Colors.white : Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(8.0))
+                    ),
+                    //padding: EdgeInsets.all(10),
+
+                    child: FlatButton(
+                      padding: EdgeInsets.all(2),
+                      child: Text("HUỶ", style: TextStyle(color: Colors.white),),
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    height: 35,
+                    width: 120,
+                    decoration: BoxDecoration(
+                        color: pay ? Colors.white : Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(8.0))
+                    ),
+                    //padding: EdgeInsets.all(10),
+
+                    child: FlatButton(
+                        padding: EdgeInsets.all(2),
+                        child: Text("THANH TOÁN", style: TextStyle(color: Colors.white, fontSize: 13),),
+                      onPressed: (){
+                          setState(() {
+                            pay = true;
+                            Navigator.pop(context);
+                          });
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   Widget imageProduct() {
     if (fileImage == null) {
       return Text('');
@@ -117,7 +183,7 @@ class _PostProductState extends State<PostProduct> {
       return new Image.file(
         File(fileImage.path),
         width: 400,
-         height: 200,
+        height: 200,
         fit: BoxFit.fitWidth,
       );
   }
@@ -132,8 +198,10 @@ class _PostProductState extends State<PostProduct> {
         child: ListView(
           children: [
             Stack(alignment: Alignment.center, children: [
-              ClipRRect(child: imageProduct(),
-              borderRadius: BorderRadius.circular(10),),
+              ClipRRect(
+                child: imageProduct(),
+                borderRadius: BorderRadius.circular(10),
+              ),
               FlatButton(
                 child: Container(
                   width: 75,
@@ -173,10 +241,8 @@ class _PostProductState extends State<PostProduct> {
                 ),
                 TextField(
                   controller: title,
-                  onChanged: (val){
-                    if(val == '' || val == null){
-
-                    }
+                  onChanged: (val) {
+                    if (val == '' || val == null) {}
                   },
                   decoration: InputDecoration(
                     //contentPadding: EdgeInsets.only(left: 10),
@@ -184,7 +250,7 @@ class _PostProductState extends State<PostProduct> {
                     //hintText: 'Title',
                     labelText: 'Tên sách',
                     labelStyle:
-                    TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -215,7 +281,7 @@ class _PostProductState extends State<PostProduct> {
                     suffixText: "VNĐ",
                     labelText: 'Giá',
                     labelStyle:
-                    TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -227,7 +293,6 @@ class _PostProductState extends State<PostProduct> {
           ],
         ),
       ),
-
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue,
         child: FlatButton(
@@ -236,9 +301,9 @@ class _PostProductState extends State<PostProduct> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           onPressed: () {
-                setState(() {
-                  indexInput = 1;
-                });
+            setState(() {
+              indexInput = 1;
+            });
           },
         ),
       ),
@@ -268,7 +333,7 @@ class _PostProductState extends State<PostProduct> {
                     //hintText: 'Title',
                     labelText: 'Tác giả',
                     labelStyle:
-                    TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -294,7 +359,7 @@ class _PostProductState extends State<PostProduct> {
                     //hintText: 'Title',
                     labelText: 'Nhà xuất bản',
                     labelStyle:
-                    TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -312,20 +377,18 @@ class _PostProductState extends State<PostProduct> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey
-                    ),
+                    border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                   child: DropdownButton(
                     items: _category
                         .map((value) => DropdownMenuItem(
-                      child: Text(
-                        value,
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                      value: value,
-                    ))
+                              child: Text(
+                                value,
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              value: value,
+                            ))
                         .toList(),
                     underline: SizedBox(),
                     onChanged: (selectedAccountType) {
@@ -338,11 +401,11 @@ class _PostProductState extends State<PostProduct> {
                     isExpanded: true,
                     hint: Text(
                       'Danh mục',
-                      style: TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                          fontSize: 17.5, fontStyle: FontStyle.italic),
                     ),
                   ),
                 ),
-
               ],
             ),
             SizedBox(
@@ -362,7 +425,7 @@ class _PostProductState extends State<PostProduct> {
                     //hintText: 'Title',
                     labelText: 'Năm xuất bản',
                     labelStyle:
-                    TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -374,19 +437,39 @@ class _PostProductState extends State<PostProduct> {
           ],
         ),
       ),
-
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue,
-        child: FlatButton(
-          child: Text(
-            "TIẾP TỤC",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              FlatButton(
+                child: Text(
+                  "QUAY LẠI",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  setState(() {
+                    indexInput = 0;
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text(
+                  "TIẾP TỤC",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  setState(() {
+                    indexInput = 2;
+                  });
+                },
+              ),
+            ],
           ),
-          onPressed: () {
-            setState(() {
-              indexInput = 2;
-            });
-          },
         ),
       ),
     );
@@ -395,7 +478,7 @@ class _PostProductState extends State<PostProduct> {
   Widget input3() {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Mô tả"),
+        title: Text("Thêm"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -414,7 +497,8 @@ class _PostProductState extends State<PostProduct> {
                   maxLines: null,
                   decoration: InputDecoration(
                     labelText: 'Mô tả',
-                    labelStyle: TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
+                    labelStyle:
+                        TextStyle(fontSize: 17.5, fontStyle: FontStyle.italic),
                     hintStyle: TextStyle(color: Colors.blue),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -426,30 +510,132 @@ class _PostProductState extends State<PostProduct> {
             SizedBox(
               height: 15,
             ),
+            Row(
+              children: [
+                Transform.scale(
+                  scale: 1.2,
+                  child: Checkbox(
+                      value: prime,
+                      activeColor: Colors.red,
+                      onChanged: (value) {
+                        setState(() {
+                          if(pay) prime = true;
+                          else
+                          prime = value;
+                        });
+                      }),
+                ),
+                Text(
+                  "Hiển thị ưu tiên",
+                  style: TextStyle(fontSize: 18.0),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+
+            prime ? Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  Text("Số ngày: $_currentSliderValue", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),),
+                Slider(
+                value: _currentSliderValue,
+                min: 1,
+                max: 10,
+                divisions: 9,
+                label: _currentSliderValue.round().toString(),
+                onChanged: !pay ? (double value) {
+                  setState(() {
+                    _currentSliderValue = value;
+                    cost = _currentSliderValue * 10000 - 1000 * (_currentSliderValue - 1);
+                  });
+                } : null,
+              ),
+                  Text("Số tiền phải trả: ${money.format(double.parse(cost.toString())) + " VND"}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),),
+                  Center(
+                    child: Container(
+                      height: 35,
+                      margin: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                          color: pay ? Colors.white : Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(8.0))
+                      ),
+                      //padding: EdgeInsets.all(10),
+
+                      child: FlatButton(
+                        padding: EdgeInsets.all(10),
+                        child: !pay ? Text("THANH TOÁN", style: TextStyle(color: Colors.white),) :
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("ĐÃ THANH TOÁN", style: TextStyle(color: Colors.blue),),
+                            SizedBox(width: 3,),
+                            Icon(Icons.check_circle, color: Colors.blue, size: 17,)
+                          ],
+                        ),
+                        onPressed: (){
+                          if(!pay){
+                            _showPayDialog(context);
+                          }
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ) : SizedBox()
           ],
         ),
       ),
-
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue,
-        child: FlatButton(
-          child: Text(
-            "ĐĂNG",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          onPressed: () {
-                if (title.value.text != '') {
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            FlatButton(
+              child: Text(
+                "QUAY LẠI",
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                setState(() {
+                  indexInput = 1;
+                });
+              },
+            ),
+            FlatButton(
+              child: Text(
+                "ĐĂNG",
+                style: TextStyle(
+                    color: (title.value.text != '' &&
+                            fileImage != null &&
+                            dropdownValue != null && ((prime && pay) || !prime))
+                        ? Colors.white
+                        : Colors.white24,
+                    fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                if (title.value.text != '' &&
+                    fileImage != null &&
+                    dropdownValue != null && ((prime && pay) || !prime)) {
+                  double dayPrime;
+                  if(pay) dayPrime = _currentSliderValue;
+                  else dayPrime = 0;
                   Book book = new Book(
                     title: title.value.text,
-                    subtitle: description.value.text,
-                    price: price.value.text.replaceAll(",", ""),
-                    author: author.value.text,
-                    category: dropdownValue,
-                    publisher: publisher.value.text,
-                    year: year.value.text,
+                    subtitle: "" + description.value.text,
+                    price: "" + price.value.text.replaceAll(",", ""),
+                    author: "" + author.value.text,
+                    category: "" + dropdownValue,
+                    publisher: "" + publisher.value.text,
+                    year: "" + year.value.text,
+                    score: dayPrime,
                     //imageNames: [fileImage.path.split('/').last],
                     imageURLs: [fileImage.path],
-
                   );
 
                   AuthService().uploadBook(book).then((val) {
@@ -461,36 +647,39 @@ class _PostProductState extends State<PostProduct> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Detail(
-                              book: newBook,
-                              canChat: false,
-                            )),
+                                  book: newBook,
+                                  canChat: false,
+                                )),
                       );
                     } else {
                       print(val.data['msg']);
                     }
                   });
                 }
-          },
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget InputScreens() {
-    switch (indexInput) {
-      case 0:
-        return input1();
-      case 1:
-        return input2();
-      case 2:
-        return input3();
-    }
-  }
-
-
+  // Widget InputScreens() {
+  //   switch (indexInput) {
+  //     case 0:
+  //       return input1();
+  //     case 1:
+  //       return input2();
+  //     case 2:
+  //       return input3();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return InputScreens();
+    return IndexedStack(
+      index: indexInput,
+      children: [input1(), input2(), input3()],
+    );
   }
 }
